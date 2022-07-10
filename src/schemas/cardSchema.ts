@@ -10,18 +10,16 @@ const createCardSchema = joi.object({
         "transport",
         "education",
         "health",
-    ).required(),
+    ).required()
 });
 
 const activateCardSchema = joi.object({
-    // id = id do Card
     id: joi.number().integer().required(),
     securityCode: joi.string().required(),
     password: joi.string().pattern(cardUtils.cardPasswordRegex).required()
 });
 
 const rechargeCardSchema = joi.object({
-    // id = id do Card
     id: joi.number().integer().required(),
     rechargeValue: joi.number().integer().min(1).required()
 });
@@ -30,6 +28,6 @@ const cardSchema = {
     createCardSchema,
     activateCardSchema,
     rechargeCardSchema
-}
+};
 
 export default cardSchema;

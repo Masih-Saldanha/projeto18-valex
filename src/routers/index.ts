@@ -1,11 +1,11 @@
 import { Router } from "express";
 
-import cardRouter from "./cardRouter.js";
+import companyRouter from "./companyRouter.js";
 import employeeRouter from "./employeeRouter.js";
 
 const router = Router();
 
-router.use(cardRouter);
+router.use(companyRouter);
 router.use(employeeRouter);
 
 export default router;

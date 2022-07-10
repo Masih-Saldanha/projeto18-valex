@@ -17,6 +17,6 @@ const blockSchema = joi.object({
 const employeeSchema = {
     paymentSchema,
     blockSchema
-}
+};
 
 export default employeeSchema;

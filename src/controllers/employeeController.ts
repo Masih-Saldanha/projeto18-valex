@@ -1,6 +1,15 @@
 import { Request, Response } from "express";
 
+import cardService from "../services/cardService.js";
 import employeeService from "../services/employeeService.js";
+
+export async function activateCard(req: Request, res: Response) {
+    const { id, securityCode, password }: { id: number, securityCode: string, password: string } = req.body;
+
+    await cardService.activateCard(id, securityCode, password);
+
+    res.sendStatus(200);
+};
 
 export async function buy(req: Request, res: Response) {
     const { cardId, password, amount, businessId } = req.body;

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-import errorType from "../services/errorType.js";
+import errorType from "../utils/errorTypeUtils.js";
 
 export function errorHandler(error, req: Request, res: Response, next: NextFunction) {
     console.error(error);
