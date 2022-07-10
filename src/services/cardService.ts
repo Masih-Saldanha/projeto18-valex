@@ -5,6 +5,8 @@ import bcrypt from "bcrypt";
 import { findByCardDetails, findByTypeAndEmployeeId, insert, TransactionTypes, findById as findByIdCard, Card, update } from "../repositories/cardRepository.js";
 import { findByApiKey } from "../repositories/companyRepository.js";
 import { findById } from "../repositories/employeeRepository.js";
+import { findByCardId } from "../repositories/paymentRepository.js";
+import { insert as insertRecharge } from "../repositories/rechargeRepository.js";
 import cryptr from "../cryptrConfig.js";
 
 async function validateAPIKey(apiKey: string) {
@@ -49,7 +51,7 @@ async function validateNotRepeatedCardType(type: TransactionTypes, employeeId: n
             message: `Employee ${cardRepeated.cardholderName} already have a ${cardRepeated.type} type card`
         };
     }
-}
+};
 
 function createCardHolderName(employeeFullName: string) {
     const stringIntoArray = employeeFullName.split(" ");
@@ -79,7 +81,7 @@ async function createCardNumber(cardHolderName: string) {
         cardNumber,
         expirationDate
     }
-}
+};
 
 function createCardCVV() {
     const CVV = faker.finance.creditCardCVV();
@@ -89,7 +91,7 @@ function createCardCVV() {
         CVV,
         encryptedCVV
     };
-}
+};
 
 async function createCard(apiKey: string, employeeId: number, type: TransactionTypes) {
     const existCompany = await validateAPIKey(apiKey);
@@ -125,14 +127,14 @@ async function createCard(apiKey: string, employeeId: number, type: TransactionT
     }
 
     await insert(cardData);
-}
+};
 
 async function validateCard(cardId: number) {
     const existCard = await findByIdCard(cardId);
     if (!existCard) {
         throw {
             type: "Not Found",
-            message: "This card Id doesn't exist"
+            message: `The card Id ${cardId} doesn't exist`
         };
     }
     return existCard;
@@ -157,14 +159,14 @@ function validateCardExpiration(card: Card) {
     if (dateDifference <= 0) {
         throw {
             type: "Not Acceptable",
-            message: `The card with the Id ${card.id} has already expired and can't be activated`
+            message: `The card with the Id ${card.id} has already expired`
         };
     }
-}
+};
 
 function decryptCardCVV(securityCodeFromTable: string) {
     return cryptr.decrypt(securityCodeFromTable);
-}
+};
 
 function validateCardCVV(securityCodeFromTable: string, securityCodeFromHeaders: string) {
     if (securityCodeFromTable !== securityCodeFromHeaders) {
@@ -173,11 +175,11 @@ function validateCardCVV(securityCodeFromTable: string, securityCodeFromHeaders:
             message: `The sended card CVV doesn't match with the registered in the system`
         };
     }
-}
+};
 
 function createPassword(password: string) {
     return bcrypt.hashSync(password, +process.env.BCRYPT_SALT);
-}
+};
 
 async function activateCard(cardId: number, securityCode: string, password: string) {
     const existCard = await validateCard(cardId)
@@ -201,11 +203,34 @@ async function activateCard(cardId: number, securityCode: string, password: stri
     // console.log(encryptedPassword);
 
     await update(cardId, { password: encryptedPassword })
-}
+};
+
+// FIXME: TERMINAR QUANDO FIZER ROTA DE RECARGA E COMPRAS
+async function viewCard(cardId: number) {
+    const cardDetails = await findByCardId(cardId);
+
+    return cardDetails;
+};
+
+async function rechargeCardById(cardId: number, amount: number) {
+    const existCard = await validateCard(cardId);
+    if (!existCard.password) {
+        throw {
+            type: "Not Acceptable",
+            message: `The card with the Id ${existCard.id} ins't activated yet, so it can't be recharged`
+        };
+    }
+
+    validateCardExpiration(existCard);
+
+    await insertRecharge({ amount, cardId });
+};
 
 const cardService = {
     createCard,
-    activateCard
-}
+    activateCard,
+    viewCard,
+    rechargeCardById
+};
 
 export default cardService;

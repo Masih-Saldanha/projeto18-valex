@@ -20,9 +20,16 @@ const activateCardSchema = joi.object({
     password: joi.string().pattern(cardUtils.cardPasswordRegex).required()
 });
 
+const rechargeCardSchema = joi.object({
+    // id = id do Card
+    id: joi.number().integer().required(),
+    rechargeValue: joi.number().integer().min(1).required()
+});
+
 const cardSchema = {
     createCardSchema,
-    activateCardSchema
+    activateCardSchema,
+    rechargeCardSchema
 }
 
 export default cardSchema;
