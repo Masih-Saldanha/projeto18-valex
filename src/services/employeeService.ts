@@ -56,7 +56,7 @@ async function blockCard(cardId: number, password: string) {
     if (existCard.isBlocked) {
         throw {
             type: "Not Acceptable",
-            message: `The card with the Id ${existCard.id} is blocked`
+            message: `The card with the Id ${existCard.id} is already blocked`
         };
     }
 
@@ -65,10 +65,28 @@ async function blockCard(cardId: number, password: string) {
     await update(cardId, { isBlocked: true });
 }
 
+async function unblockCard(cardId: number, password: string) {
+    const existCard = await cardUtils.validateCard(cardId);
+
+    cardUtils.validateCardExpiration(existCard);
+
+    if (!existCard.isBlocked) {
+        throw {
+            type: "Not Acceptable",
+            message: `The card with the Id ${existCard.id} is not blocked`
+        };
+    }
+
+    cardUtils.decryptPassword(password, existCard.password);
+
+    await update(cardId, { isBlocked: false });
+}
+
 const employeeService = {
     buyWithCard,
     cardData,
-    blockCard
+    blockCard,
+    unblockCard
 }
 
 export default employeeService;
