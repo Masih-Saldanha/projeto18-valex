@@ -11,9 +11,10 @@ export async function buy(req: Request, res: Response) {
 };
 
 export async function viewCardData(req: Request, res: Response) {
-    // const { cardId, password, amount, businessId } = req.body;
+    const { cardId } = req.params;
+    const cardIdInt = parseInt(cardId);
 
-    // await employeeService.buyWithCard(cardId, password, amount, businessId);
+    const cardData = await employeeService.cardData(cardIdInt);
 
-    res.sendStatus(200);
+    res.status(200).send(cardData);
 };

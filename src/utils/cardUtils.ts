@@ -161,16 +161,15 @@ async function validateCardRechargeAmount(cardId: number) {
     const cardPaymentList = await findByCardIdPayment(cardId);
     const cardRechargeList = await findByCardId(cardId);
     let totalAmountAvailable = 0;
-    if (cardPaymentList) {
-        cardPaymentList.forEach(recharge => totalAmountAvailable -= recharge.amount);
-    }
-    if (cardRechargeList) {
-        cardRechargeList.forEach(recharge => totalAmountAvailable += recharge.amount);
-    }
-    console.log(cardPaymentList);
-    console.log(cardRechargeList);
-    console.log(totalAmountAvailable);
-    return totalAmountAvailable;
+
+    cardPaymentList.forEach(recharge => totalAmountAvailable -= recharge.amount);
+    cardRechargeList.forEach(recharge => totalAmountAvailable += recharge.amount);
+
+    return {
+        balance: totalAmountAvailable,
+        transactions: cardPaymentList,
+        recharges: cardRechargeList
+    };
 }
 
 const cardUtils = {

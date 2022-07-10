@@ -32,7 +32,7 @@ async function buyWithCard(cardId: number, password: string, amount: number, bus
     }
 
     const totalAmountAvailable = await cardUtils.validateCardRechargeAmount(cardId);
-    if (amount > totalAmountAvailable) {
+    if (amount > totalAmountAvailable.balance) {
         throw {
             type: "Not Acceptable",
             message: `The card with the Id ${cardId} doesn't have enough money to complete the transation. Card amount: ${totalAmountAvailable}; Shopping value: ${amount}`
@@ -42,8 +42,14 @@ async function buyWithCard(cardId: number, password: string, amount: number, bus
     await insert({ cardId, businessId, amount });
 }
 
+async function cardData(cardId: number) {
+    await cardUtils.validateCard(cardId);
+    return await cardUtils.validateCardRechargeAmount(cardId);
+}
+
 const employeeService = {
-    buyWithCard
+    buyWithCard,
+    cardData
 }
 
 export default employeeService;
