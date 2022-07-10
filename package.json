@@ -15,6 +15,7 @@
   "dependencies": {
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
+    "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "cryptr": "^6.0.3",
     "dayjs": "^1.11.3",
@@ -28,6 +29,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^7.3.0",
+    "@types/bcrypt": "^5.0.0",
     "@types/cryptr": "^4.0.1",
     "@types/dayjs-precise-range": "^1.0.1",
     "@types/dotenv": "^8.2.0",

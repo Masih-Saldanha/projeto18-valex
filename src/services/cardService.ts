@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
 import { faker } from "@faker-js/faker";
+import bcrypt from "bcrypt";
 
-import { findByCardDetails, findByTypeAndEmployeeId, insert, TransactionTypes } from "../repositories/cardRepository.js";
+import { findByCardDetails, findByTypeAndEmployeeId, insert, TransactionTypes, findById as findByIdCard, Card, update } from "../repositories/cardRepository.js";
 import { findByApiKey } from "../repositories/companyRepository.js";
 import { findById } from "../repositories/employeeRepository.js";
 import cryptr from "../cryptrConfig.js";
@@ -63,7 +64,7 @@ function createCardHolderName(employeeFullName: string) {
     return cardHolderName;
 };
 
-async function createCardNumber(cardHolderName : string) {
+async function createCardNumber(cardHolderName: string) {
     let cardNumber = faker.finance.creditCardNumber('#### #### #### ####');
     const expirationDate = dayjs(Date.now()).add(5, "year").format("MM/YY");
     let existCardNumber = await findByCardDetails(cardNumber, cardHolderName, expirationDate);
@@ -90,7 +91,7 @@ function createCardCVV() {
     };
 }
 
-async function createCard(apiKey : string, employeeId : number, type : TransactionTypes) {
+async function createCard(apiKey: string, employeeId: number, type: TransactionTypes) {
     const existCompany = await validateAPIKey(apiKey);
     // console.log(existCompany);
 
@@ -109,7 +110,7 @@ async function createCard(apiKey : string, employeeId : number, type : Transacti
 
     const cardCVV = createCardCVV();
     // console.log(cardCVV);
-    
+
     const cardData = {
         employeeId,
         number: cardNumberAndExpirationDate.cardNumber,
@@ -126,8 +127,85 @@ async function createCard(apiKey : string, employeeId : number, type : Transacti
     await insert(cardData);
 }
 
+async function validateCard(cardId: number) {
+    const existCard = await findByIdCard(cardId);
+    if (!existCard) {
+        throw {
+            type: "Not Found",
+            message: "This card Id doesn't exist"
+        };
+    }
+    return existCard;
+};
+
+function validateCardExpiration(card: Card) {
+    // console.log(dayjs(Date.now()).format("MM/YY"))
+    // console.log(card.expirationDate);
+    const expirationMonth = card.expirationDate.split("/")[0];
+    const expirationYear = card.expirationDate.split("/")[1];
+    const expirationFullDate = `20${expirationYear}/${expirationMonth}/01`;
+    const dateNow = dayjs(Date.now()).format("YYYY/MM/DD");
+    const dateExpiration = dayjs(expirationFullDate).format("YYYY/MM/DD");
+    // console.log(dateNow);
+    // console.log(dateExpiration);
+    const date1 = dayjs(dateNow);
+    const date2 = dayjs(dateExpiration);
+    // console.log(date1);
+    // console.log(date2);
+    const dateDifference = date2.diff(date1);
+    // console.log(dateDifference);
+    if (dateDifference <= 0) {
+        throw {
+            type: "Not Acceptable",
+            message: `The card with the Id ${card.id} has already expired and can't be activated`
+        };
+    }
+}
+
+function decryptCardCVV(securityCodeFromTable: string) {
+    return cryptr.decrypt(securityCodeFromTable);
+}
+
+function validateCardCVV(securityCodeFromTable: string, securityCodeFromHeaders: string) {
+    if (securityCodeFromTable !== securityCodeFromHeaders) {
+        throw {
+            type: "Not Found",
+            message: `The sended card CVV doesn't match with the registered in the system`
+        };
+    }
+}
+
+function createPassword(password: string) {
+    return bcrypt.hashSync(password, +process.env.BCRYPT_SALT);
+}
+
+async function activateCard(cardId: number, securityCode: string, password: string) {
+    const existCard = await validateCard(cardId)
+    // console.log(existCard);
+
+    validateCardExpiration(existCard);
+
+    if (existCard.password) {
+        throw {
+            type: "Conflict",
+            message: `The card with the Id ${existCard.id} has already been activated and can't be activated again`
+        };
+    }
+
+    const decryptSecurityCode = decryptCardCVV(existCard.securityCode);
+    // console.log(decryptSecurityCode);
+
+    validateCardCVV(decryptSecurityCode, securityCode);
+
+    const encryptedPassword = createPassword(password);
+    // console.log(encryptedPassword);
+
+    await update(cardId, { password: encryptedPassword })
+}
+
 const cardService = {
-    createCard
+    createCard,
+    activateCard
 }
 
 export default cardService;
