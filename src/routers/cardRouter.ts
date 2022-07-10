@@ -1,14 +1,9 @@
-import { Request, Response, Router } from "express";
+import { Router } from "express";
+
+import { createCard } from "../controllers/cardController.js";
 
 const cardRouter = Router();
 
-cardRouter.get("/", async (req: Request, res: Response) => {
-    // throw {
-    //     type: "Not Found",
-    //     message: "Não achou"
-    // };
-    console.log("ok");
-    res.sendStatus(200);
-});
+cardRouter.post("/create-card", createCard);
 
 export default cardRouter;

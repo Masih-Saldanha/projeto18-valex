@@ -1,16 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 
+import errorType from "../services/errorType.js";
+
 export function errorHandler(error, req: Request, res: Response, next: NextFunction) {
     console.error(error);
 
-    // FIXME: AJUSTAR CASOS DE ERROR POR TYPE:
+    const errorThrow = errorType.type(error);
 
-    // if (error.type === "Unprocessable Entity") {
-    //     return res.status(422).send(error.message);
-    // }
-    // if (error.type === "Not Found") {
-    //     return res.status(404).send(error.message);
-    // }
-
-    return res.status(500).send(error);
+    return res.status(errorThrow.status).send(errorThrow.message);
 }
