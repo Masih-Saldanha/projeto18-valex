@@ -1,5 +1,4 @@
 import { insert, TransactionTypes, update } from "../repositories/cardRepository.js";
-import { findByCardId } from "../repositories/paymentRepository.js";
 import { insert as insertRecharge } from "../repositories/rechargeRepository.js";
 import cardUtils from "../utils/cardUtils.js";
 
@@ -199,13 +198,6 @@ async function activateCard(cardId: number, securityCode: string, password: stri
     await update(cardId, { password: encryptedPassword })
 };
 
-// FIXME: TERMINAR QUANDO FIZER ROTA DE RECARGA E COMPRAS
-async function viewCard(cardId: number) {
-    const cardDetails = await findByCardId(cardId);
-
-    return cardDetails;
-};
-
 async function rechargeCardById(cardId: number, amount: number) {
     const existCard = await cardUtils.validateCard(cardId);
     if (!existCard.password) {
@@ -223,7 +215,6 @@ async function rechargeCardById(cardId: number, amount: number) {
 const cardService = {
     createCard,
     activateCard,
-    viewCard,
     rechargeCardById
 };
 

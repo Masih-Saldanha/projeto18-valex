@@ -9,8 +9,14 @@ const paymentSchema = joi.object({
     businessId: joi.number().integer().required()
 });
 
+const blockSchema = joi.object({
+    cardId: joi.number().integer().required(),
+    password: joi.string().pattern(cardUtils.cardPasswordRegex).required()
+});
+
 const employeeSchema = {
-    paymentSchema
+    paymentSchema,
+    blockSchema
 }
 
 export default employeeSchema;

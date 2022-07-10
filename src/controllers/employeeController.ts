@@ -18,3 +18,12 @@ export async function viewCardData(req: Request, res: Response) {
 
     res.status(200).send(cardData);
 };
+
+export async function blockCard(req: Request, res: Response) {
+    const { cardId, password } = req.body;
+    const cardIdInt = parseInt(cardId);
+
+    await employeeService.blockCard(cardIdInt, password);
+
+    res.sendStatus(200);
+};

@@ -1,3 +1,4 @@
+import { update } from "../repositories/cardRepository.js";
 import { insert } from "../repositories/paymentRepository.js";
 import businessesUtils from "../utils/businessesUtils.js";
 import cardUtils from "../utils/cardUtils.js";
@@ -47,9 +48,27 @@ async function cardData(cardId: number) {
     return await cardUtils.validateCardRechargeAmount(cardId);
 }
 
+async function blockCard(cardId: number, password: string) {
+    const existCard = await cardUtils.validateCard(cardId);
+
+    cardUtils.validateCardExpiration(existCard);
+
+    if (existCard.isBlocked) {
+        throw {
+            type: "Not Acceptable",
+            message: `The card with the Id ${existCard.id} is blocked`
+        };
+    }
+
+    cardUtils.decryptPassword(password, existCard.password);
+
+    await update(cardId, { isBlocked: true });
+}
+
 const employeeService = {
     buyWithCard,
-    cardData
+    cardData,
+    blockCard
 }
 
 export default employeeService;
