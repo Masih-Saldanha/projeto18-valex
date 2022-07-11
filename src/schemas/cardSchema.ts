@@ -15,7 +15,7 @@ const createCardSchema = joi.object({
 
 const activateCardSchema = joi.object({
     id: joi.number().integer().required(),
-    securityCode: joi.string().required(),
+    securityCode: joi.string().pattern(cardUtils.cardCVVRegex).required(),
     password: joi.string().pattern(cardUtils.cardPasswordRegex).required()
 });
 

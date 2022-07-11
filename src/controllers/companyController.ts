@@ -14,7 +14,7 @@ export async function createCard(req: Request, res: Response) {
 };
 
 export async function rechargeCard(req: Request, res: Response) {
-    const { id, rechargeValue } = req.body;
+    const { id, rechargeValue } : { id : number, rechargeValue : number } = req.body;
 
     await cardService.rechargeCardById(id, rechargeValue);
 

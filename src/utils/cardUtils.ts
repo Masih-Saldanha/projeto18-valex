@@ -8,6 +8,8 @@ import { findByCardId as findByCardIdPayment } from "../repositories/paymentRepo
 
 const cardPasswordRegex = /^[0-9]{4}$/;
 
+const cardCVVRegex = /^[0-9]{3}$/;
+
 async function createCardNumber(cardHolderName: string) {
     let cardNumber = faker.finance.creditCardNumber('#### #### #### ####');
     const expirationDate = dayjs(Date.now()).add(5, "year").format("MM/YY");
@@ -93,6 +95,7 @@ async function validateCardRechargeAmount(cardId: number) {
 
 const cardUtils = {
     cardPasswordRegex,
+    cardCVVRegex,
     createCardNumber,
     createCardCVV,
     validateCard,

@@ -12,7 +12,7 @@ export async function activateCard(req: Request, res: Response) {
 };
 
 export async function buy(req: Request, res: Response) {
-    const { cardId, password, amount, businessId } = req.body;
+    const { cardId, password, amount, businessId } : { cardId : number, password : string, amount : number, businessId : number } = req.body;
 
     await employeeService.buyWithCard(cardId, password, amount, businessId);
 
@@ -29,19 +29,17 @@ export async function viewCardData(req: Request, res: Response) {
 };
 
 export async function blockCard(req: Request, res: Response) {
-    const { cardId, password } = req.body;
-    const cardIdInt = parseInt(cardId);
+    const { cardId, password } : { cardId : number, password : string } = req.body;
 
-    await employeeService.blockCard(cardIdInt, password);
+    await employeeService.blockCard(cardId, password);
 
     res.sendStatus(200);
 };
 
 export async function unblockCard(req: Request, res: Response) {
-    const { cardId, password } = req.body;
-    const cardIdInt = parseInt(cardId);
+    const { cardId, password } : { cardId : number, password : string } = req.body;
 
-    await employeeService.unblockCard(cardIdInt, password);
+    await employeeService.unblockCard(cardId, password);
 
     res.sendStatus(200);
 };
